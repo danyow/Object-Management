@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class GameDataReader : MonoBehaviour
 {
+    public int Version { get; }
     BinaryReader reader;
 
     public GameDataReader Init(BinaryReader reader) {
@@ -10,8 +11,9 @@ public class GameDataReader : MonoBehaviour
         return this;
     }
 
-    public GameDataReader(BinaryReader reader) {
+    public GameDataReader(BinaryReader reader, int Version) {
         this.reader = reader;
+        this.Version = Version;
     }
 
     public float ReadFloat () {
@@ -38,4 +40,13 @@ public class GameDataReader : MonoBehaviour
 		value.z = reader.ReadSingle();
 		return value;
 	}
+
+    public Color ReadColor() {
+        Color value;
+        value.r = reader.ReadSingle();
+        value.g = reader.ReadSingle();
+        value.b = reader.ReadSingle();
+        value.a = reader.ReadSingle();
+        return value;
+    }
 }

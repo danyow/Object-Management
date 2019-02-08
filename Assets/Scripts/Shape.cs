@@ -24,4 +24,21 @@ public class Shape : PersistableObject
         MaterialId = materialId;
     }
 
+    Color color;
+    public void SetColor(Color color) {
+        this.color = color;
+        GetComponent<MeshRenderer>().material.color = color;
+    }
+
+
+    public override void Save(GameDataWriter writer) {
+        base.Save(writer);
+        writer.Write(color);
+    }
+
+    public override void Load(GameDataReader reader) {
+        base.Load(reader);
+        SetColor(reader.Version > 0 ? reader.ReadColor() : Color.white);
+    }
+
 }
