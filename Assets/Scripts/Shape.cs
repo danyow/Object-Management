@@ -20,14 +20,23 @@ public class Shape : PersistableObject
     public int MaterialId { get; private set; }
 
     public void SetMaterial(Material material, int materialId) {
-        GetComponent<MeshRenderer>().material = material;
+        meshRenderer.material = material;
         MaterialId = materialId;
     }
+
+    static int colorPropertyId = Shader.PropertyToID("_Color");
+    static MaterialPropertyBlock sharedPropertyBlock;
 
     Color color;
     public void SetColor(Color color) {
         this.color = color;
-        GetComponent<MeshRenderer>().material.color = color;
+        // meshRenderer.material.color = color;
+        if (sharedPropertyBlock == null)
+        {
+            sharedPropertyBlock = new MaterialPropertyBlock();
+        }
+        sharedPropertyBlock.SetColor(colorPropertyId, color);
+        meshRenderer.SetPropertyBlock(sharedPropertyBlock);
     }
 
 
@@ -39,6 +48,12 @@ public class Shape : PersistableObject
     public override void Load(GameDataReader reader) {
         base.Load(reader);
         SetColor(reader.Version > 0 ? reader.ReadColor() : Color.white);
+    }
+
+    MeshRenderer meshRenderer;
+
+    private void Awake() {
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
 }
