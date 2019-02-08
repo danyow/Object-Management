@@ -72,7 +72,7 @@ public class Game : PersistableObject
     void BeginNewGame() {
         for (int i = 0; i < shapes.Count; i++)
         {
-            Destroy(shapes[i].gameObject);
+            shapeFactory.Reclaim(shapes[i]);
         }
         shapes.Clear();
     }
@@ -107,7 +107,7 @@ public class Game : PersistableObject
     public void DestroyShape() {
         if (shapes.Count > 0) {
             int index = Random.Range(0, shapes.Count);
-            Destroy(shapes[index].gameObject);
+            shapeFactory.Reclaim(shapes[index]);
             /**
             这里删除有一个细节 就是删除的时候把当前值移到最后面再删除 
             但是如果是一个一个移动 保证顺序的话 就会耗费很多时间 
