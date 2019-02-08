@@ -42,4 +42,8 @@ public class GameDataWriter : MonoBehaviour
         writer.Write(value.a);
     }
 
+    public void Write(Random.State value) {
+        writer.Write(JsonUtility.ToJson(value));
+    }
+
 }
