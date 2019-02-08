@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class Shape : PersistableObject
 {
-    // Start is called before the first frame update
-    void Start()
+    private int shapeId = int.MinValue;
+    public int ShapeId
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        get { return shapeId;}
+        set { 
+            if (shapeId == int.MinValue && value != int.MinValue) {
+                shapeId = value;
+            } else {
+                 Debug.Log("Can't Change ShapeId");
+            }
+        }
     }
 }
