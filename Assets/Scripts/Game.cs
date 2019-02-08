@@ -5,14 +5,18 @@ using UnityEngine;
 public class Game : PersistableObject
 {
     const int saveVersion = 1;
+    public float CreationSpeed { get; set; }
+    public float DestructionSpeed {get; set; }
+    float creationProgress, destructionProgress;
 
     public ShapeFactory shapeFactory;
     List<Shape> shapes;
     public PersistentStorage storage;
-    public KeyCode createKey = KeyCode.C;
+    public KeyCode createKey  = KeyCode.C;
     public KeyCode newGameKey = KeyCode.N;
-    public KeyCode saveKey = KeyCode.S;
-    public KeyCode loadKey = KeyCode.L;
+    public KeyCode saveKey    = KeyCode.S;
+    public KeyCode loadKey    = KeyCode.L;
+    public KeyCode destroyKey = KeyCode.X;
 
     private void Awake() {
         shapes = new List<Shape>();
@@ -28,7 +32,22 @@ public class Game : PersistableObject
         } else if (Input.GetKeyDown(loadKey)) {
             BeginNewGame();
             storage.Load(this);
+        } else if (Input.GetKeyDown(destroyKey)) {
+            DestroyShape();
         }
+
+        creationProgress += Time.deltaTime * CreationSpeed;
+        while (creationProgress >= 1f) {
+            creationProgress -= 1f;
+            CreateShape();
+        }
+
+        destructionProgress += Time.deltaTime * DestructionSpeed;
+        while (destructionProgress >= 1f) {
+            destructionProgress -= 1f;
+            DestroyShape();
+        }
+
     }
 
     void CreateShape() {
@@ -82,6 +101,21 @@ public class Game : PersistableObject
             Shape instance = shapeFactory.Get(shapeId, materialId);
             instance.Load(reader);
             shapes.Add(instance);
+        }
+    }
+
+    public void DestroyShape() {
+        if (shapes.Count > 0) {
+            int index = Random.Range(0, shapes.Count);
+            Destroy(shapes[index].gameObject);
+            /**
+            这里删除有一个细节 就是删除的时候把当前值移到最后面再删除 
+            但是如果是一个一个移动 保证顺序的话 就会耗费很多时间 
+            如果直接和最后一个交换的话 就会打乱顺序 但符合我们的需求
+             */
+            int lastIndex = shapes.Count - 1;
+            shapes[index] = shapes[lastIndex];
+            shapes.RemoveAt(lastIndex);
         }
     }
 
