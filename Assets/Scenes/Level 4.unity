@@ -156,6 +156,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebad267be014c4d62852b8964875172e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnConfig:
+    factories:
+    - {fileID: 11400000, guid: acb4207b063704c3b995f23d9913094a, type: 2}
+    - {fileID: 11400000, guid: cb4eb9e37dc124848b8301b0da34d68a, type: 2}
+    movementDirection: 0
+    speed:
+      min: 0
+      max: 2
+    angularSpeed:
+      min: 30
+      max: 90
+    scale:
+      min: 1
+      max: 2
+    color:
+      hue:
+        min: 0
+        max: 1
+      saturation:
+        min: 0
+        max: 1
+      value:
+        min: 0
+        max: 1
+    uniformColor: 0
   surfaceOnly: 0
 --- !u!1 &240552801
 GameObject:
@@ -319,10 +344,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05d1bbda35dc945329c7ba9e58505b34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnConfig:
+    factories:
+    - {fileID: 11400000, guid: acb4207b063704c3b995f23d9913094a, type: 2}
+    - {fileID: 11400000, guid: cb4eb9e37dc124848b8301b0da34d68a, type: 2}
+    movementDirection: 0
+    speed:
+      min: 2
+      max: 3
+    angularSpeed:
+      min: 0
+      max: 90
+    scale:
+      min: 1
+      max: 1.5
+    color:
+      hue:
+        min: 0
+        max: 1
+      saturation:
+        min: 0
+        max: 1
+      value:
+        min: 0
+        max: 1
+    uniformColor: 0
   spawnZones:
   - {fileID: 976111631}
   - {fileID: 56621587}
   sequential: 1
+  overrideConfig: 0
 --- !u!1 &976111629
 GameObject:
   m_ObjectHideFlags: 0
@@ -366,6 +417,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebad267be014c4d62852b8964875172e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnConfig:
+    factories:
+    - {fileID: 11400000, guid: acb4207b063704c3b995f23d9913094a, type: 2}
+    - {fileID: 11400000, guid: cb4eb9e37dc124848b8301b0da34d68a, type: 2}
+    movementDirection: 0
+    speed:
+      min: 0
+      max: 2
+    angularSpeed:
+      min: 30
+      max: 90
+    scale:
+      min: 1
+      max: 2
+    color:
+      hue:
+        min: 0
+        max: 1
+      saturation:
+        min: 0
+        max: 1
+      value:
+        min: 0
+        max: 1
+    uniformColor: 0
   surfaceOnly: 0
 --- !u!1 &1028783245
 GameObject:

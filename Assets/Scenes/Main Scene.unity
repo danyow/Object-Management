@@ -145,7 +145,9 @@ MonoBehaviour:
   creationSpeedSlider: {fileID: 477563634}
   destructionSpeedSlider: {fileID: 1349521200}
   reseedOnLoad: 0
-  shapeFactory: {fileID: 11400000, guid: cb4eb9e37dc124848b8301b0da34d68a, type: 2}
+  shapeFactories:
+  - {fileID: 11400000, guid: acb4207b063704c3b995f23d9913094a, type: 2}
+  - {fileID: 11400000, guid: cb4eb9e37dc124848b8301b0da34d68a, type: 2}
   storage: {fileID: 1616217832}
   levelCount: 4
   createKey: 99

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class Game : PersistableObject
 {
-    const int saveVersion = 4;
+    const int saveVersion = 5;
     public float CreationSpeed { get; set; }
     public float DestructionSpeed {get; set; }
     [SerializeField]
@@ -15,7 +15,7 @@ public class Game : PersistableObject
     // 是否重置种子在加载的时候
     bool reseedOnLoad;
     [SerializeField]
-    ShapeFactory shapeFactory;
+    ShapeFactory[] shapeFactories;
     public PersistentStorage storage;
     // public SpawnZone spawnZoneOfLevel {get; set; }
     public int levelCount;
@@ -28,6 +28,16 @@ public class Game : PersistableObject
     public KeyCode saveKey    = KeyCode.S;
     public KeyCode loadKey    = KeyCode.L;
     public KeyCode destroyKey = KeyCode.X;
+
+    private void OnEnable() {
+        if (shapeFactories[0].FactoryId != 0)
+        {
+            for (int i = 0; i < shapeFactories.Length; i++) {
+                shapeFactories[i].FactoryId = i;
+            }
+        }
+    }
+
     private void Start() {
         mainRandomState = Random.state;
         shapes = new List<Shape>();
@@ -89,9 +99,7 @@ public class Game : PersistableObject
 
 
     void CreateShape() {
-        Shape instance = shapeFactory.GetRandom();
-        GameLevel.Current.ConfigureSpawn(instance);
-        shapes.Add(instance);
+        shapes.Add(GameLevel.Current.SpawnShape());
     }
 
     void BeginNewGame() {
@@ -101,9 +109,8 @@ public class Game : PersistableObject
         Random.InitState(seed);
         creationSpeedSlider.value    = CreationSpeed    = 0;
         destructionSpeedSlider.value = DestructionSpeed = 0;
-        for (int i = 0; i < shapes.Count; i++)
-        {
-            shapeFactory.Reclaim(shapes[i]);
+        for (int i = 0; i < shapes.Count; i++) {
+            shapes[i].Recycle();
         }
         shapes.Clear();
     }
@@ -118,6 +125,7 @@ public class Game : PersistableObject
         writer.Write(loadedLevelBuildIndex);
         GameLevel.Current.Save(writer);
         for (int i = 0; i < shapes.Count; i++) {
+            writer.Write(shapes[i].OriginFactory.FactoryId);
             writer.Write(shapes[i].ShapeId);
             writer.Write(shapes[i].MaterialId);
             shapes[i].Save(writer);
@@ -153,9 +161,10 @@ public class Game : PersistableObject
         }
         for (int i = 0; i < count; i++)
         {
+            int factoryId = version >= 5 ? reader.ReadInt() : 0;
             int shapeId = version > 0 ? reader.ReadInt() : 0;
             int materialId = version > 0 ? reader.ReadInt() : 0;
-            Shape instance = shapeFactory.Get(shapeId, materialId);
+            Shape instance = shapeFactories[factoryId].Get(shapeId, materialId);
             instance.Load(reader);
             shapes.Add(instance);
         }
@@ -164,7 +173,7 @@ public class Game : PersistableObject
     public void DestroyShape() {
         if (shapes.Count > 0) {
             int index = Random.Range(0, shapes.Count);
-            shapeFactory.Reclaim(shapes[index]);
+            shapes[index].Recycle();
             /**
             这里删除有一个细节 就是删除的时候把当前值移到最后面再删除 
             但是如果是一个一个移动 保证顺序的话 就会耗费很多时间 
