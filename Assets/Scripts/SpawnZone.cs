@@ -39,7 +39,6 @@ public abstract class SpawnZone : PersistableObject
         public FloatRange speed;
         public FloatRange angularSpeed;
         public FloatRange scale;
-        [FloatRangeSlider (0f, 1f)]
         public ColorRangeHSV color;
     }
 
