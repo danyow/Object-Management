@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-
+[DisallowMultipleComponent]
 public class Game : PersistableObject
 {
     const int saveVersion = 6;
@@ -114,6 +114,42 @@ public class Game : PersistableObject
             shapes[i].Recycle();
         }
         shapes.Clear();
+	}
+    IEnumerator LoadLevel(int levelBuildIndex) {
+        enabled = false;
+        if (loadedLevelBuildIndex > 0) {
+            yield return SceneManager.UnloadSceneAsync(loadedLevelBuildIndex);
+        }
+        yield return SceneManager.LoadSceneAsync(levelBuildIndex, LoadSceneMode.Additive);
+        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelBuildIndex));
+        loadedLevelBuildIndex = levelBuildIndex;
+        enabled = true;
+    }
+    public void DestroyShape() {
+        if (shapes.Count > 0) {
+            int index = Random.Range(0, shapes.Count);
+            shapes[index].Recycle();
+            /**
+            这里删除有一个细节 就是删除的时候把当前值移到最后面再删除 
+            但是如果是一个一个移动 保证顺序的话 就会耗费很多时间 
+            如果直接和最后一个交换的话 就会打乱顺序 但符合我们的需求
+             */
+            int lastIndex = shapes.Count - 1;
+            shapes[lastIndex].SaveIndex = index;
+            shapes[index] = shapes[lastIndex];
+            shapes.RemoveAt(lastIndex);
+        }
+    }
+
+
+
+    public void AddShape(Shape shape) {
+        shape.SaveIndex = shapes.Count;
+        shapes.Add(shape);
+    }
+
+    public Shape GetShape(int index) {
+        return shapes[index];
     }
 
     public override void Save(GameDataWriter writer) {
@@ -173,40 +209,5 @@ public class Game : PersistableObject
         }
     }
 
-    public void DestroyShape() {
-        if (shapes.Count > 0) {
-            int index = Random.Range(0, shapes.Count);
-            shapes[index].Recycle();
-            /**
-            这里删除有一个细节 就是删除的时候把当前值移到最后面再删除 
-            但是如果是一个一个移动 保证顺序的话 就会耗费很多时间 
-            如果直接和最后一个交换的话 就会打乱顺序 但符合我们的需求
-             */
-            int lastIndex = shapes.Count - 1;
-            shapes[lastIndex].SaveIndex = index;
-            shapes[index] = shapes[lastIndex];
-            shapes.RemoveAt(lastIndex);
-        }
-    }
-
-    IEnumerator LoadLevel(int levelBuildIndex) {
-        enabled = false;
-        if (loadedLevelBuildIndex > 0) {
-            yield return SceneManager.UnloadSceneAsync(loadedLevelBuildIndex);
-        }
-        yield return SceneManager.LoadSceneAsync(levelBuildIndex, LoadSceneMode.Additive);
-        SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelBuildIndex));
-        loadedLevelBuildIndex = levelBuildIndex;
-        enabled = true;
-    }
-
-    public void AddShape(Shape shape) {
-        shape.SaveIndex = shapes.Count;
-        shapes.Add(shape);
-    }
-
-    public Shape GetShape(int index) {
-        return shapes[index];
-    }
 
 }

@@ -10,6 +10,25 @@ public class SatelliteShapeBehavior : ShapeBehavior
             return ShapeBehaviorType.Satellite;
         }
     }
+    ShapeInstance focalShape;
+    float frequency;
+    Vector3 cosOffset, sinOffset;
+
+    public void Initialize(Shape shape, Shape focalShape, float radius, float frequency) {
+        this.focalShape = focalShape;
+        this.frequency = frequency;
+        Vector3 orbitAxis = Random.onUnitSphere;
+        do {
+            cosOffset = Vector3.Cross(orbitAxis, Random.onUnitSphere).normalized;
+        } while (cosOffset.sqrMagnitude < 0.1f);
+        sinOffset = Vector3.Cross(cosOffset, orbitAxis);
+        cosOffset *= radius;
+        sinOffset *= radius;
+
+        shape.AddBehavior<RotationShapeBehavior>().AngularVelocity = -360f * frequency * shape.transform.InverseTransformDirection(orbitAxis);
+        GameUpdate(shape);
+        previousPosition = shape.transform.localPosition;
+    }
     public override bool GameUpdate(Shape shape) {
         if (focalShape.IsValid) {
             float t = 2f * Mathf.PI * frequency * shape.Age;
@@ -37,33 +56,15 @@ public class SatelliteShapeBehavior : ShapeBehavior
         previousPosition = reader.ReadVector3();
     }
 
-    public override void Recycle() {
-        ShapeBehaviorPool<SatelliteShapeBehavior>.Reclaim(this);        
-    }
 
     
-    ShapeInstance focalShape;
-    float frequency;
-    Vector3 cosOffset, sinOffset;
 
-    public void Initialize(Shape shape, Shape focalShape, float radius, float frequency) {
-        this.focalShape = focalShape;
-        this.frequency = frequency;
-        Vector3 orbitAxis = Random.onUnitSphere;
-        do {
-            cosOffset = Vector3.Cross(orbitAxis, Random.onUnitSphere).normalized;
-        } while (cosOffset.sqrMagnitude < 0.1f);
-        sinOffset = Vector3.Cross(cosOffset, orbitAxis);
-        cosOffset *= radius;
-        sinOffset *= radius;
-
-        shape.AddBehavior<RotationShapeBehavior>().AngularVelocity = -360f * frequency * shape.transform.InverseTransformDirection(orbitAxis);
-        GameUpdate(shape);
-        previousPosition = shape.transform.localPosition;
-    }
 
     public override void ResolveShapeInstances() {
         focalShape.Resolve();
+    }
+    public override void Recycle() {
+        ShapeBehaviorPool<SatelliteShapeBehavior>.Reclaim(this);        
     }
 }
 

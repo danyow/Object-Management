@@ -41,6 +41,7 @@ public class ShapeFactory : ScriptableObject
             int lastIndex = pool.Count - 1;
             if (lastIndex >= 0) {
                 instance = pool[lastIndex];
+				instance.gameObject.SetActive(true);
                 pool.RemoveAt(lastIndex);
             } else {
                 instance = Instantiate(prefabs[shapeId]);
@@ -48,7 +49,7 @@ public class ShapeFactory : ScriptableObject
                 instance.ShapeId = shapeId;
                 SceneManager.MoveGameObjectToScene(instance.gameObject, poolScene);
             }
-            instance.gameObject.SetActive(true);
+            
         } else {
             instance = Instantiate(prefabs[shapeId]);
             instance.ShapeId = shapeId;

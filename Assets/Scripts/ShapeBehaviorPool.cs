@@ -9,12 +9,12 @@ public static class ShapeBehaviorPool<T> where T : ShapeBehavior, new()
     public static T Get() {
         if (stack.Count > 0) {
             T behavior = stack.Pop();
-#if UINTY_EDITOR    
+#if UNITY_EDITOR
             behavior.IsReclaimed = false;
 #endif
-            return stack.Pop();
+			return behavior;
         }
-#if UINTY_EDITOR
+#if UNITY_EDITOR
         return ScriptableObject.CreateInstance<T>();
 #else
         return new T();
@@ -22,7 +22,7 @@ public static class ShapeBehaviorPool<T> where T : ShapeBehavior, new()
     }
 
     public static void Reclaim(T behavior) {
-#if UINTY_EDITOR    
+#if UNITY_EDITOR
             behavior.IsReclaimed = true;
 #endif
         stack.Push(behavior);

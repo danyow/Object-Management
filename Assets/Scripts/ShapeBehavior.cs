@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class ShapeBehavior 
-#if UINTY_EDITOR    
-: ScriptableObject
+public abstract class ShapeBehavior
+#if UNITY_EDITOR
+	: ScriptableObject
 #endif
 {
     public abstract ShapeBehaviorType BehaviorType{ get; }

@@ -6,6 +6,23 @@ public class Shape : PersistableObject
 {
     // 形状索引
     public int SaveIndex { get; set; }
+
+
+    public int MaterialId { get; private set; }
+
+
+
+    static int colorPropertyId = Shader.PropertyToID("_Color");
+    static MaterialPropertyBlock sharedPropertyBlock;
+
+    Color[] colors;
+
+    public int ColorCount {
+        get {
+            return colors.Length;
+        }
+    }
+
     private int shapeId = int.MinValue;
     public int ShapeId
     {
@@ -30,27 +47,39 @@ public class Shape : PersistableObject
             }
         }
     }    
-
-    public int MaterialId { get; private set; }
-
-    public void SetMaterial(Material material, int materialId) {
-        for (int i = 0; i < meshRenderers.Length; i++) {
-            meshRenderers[i].material = material;
-        }
-        MaterialId = materialId;
+    private void Awake() {
+        colors = new Color[meshRenderers.Length];
     }
-
-    static int colorPropertyId = Shader.PropertyToID("_Color");
-    static MaterialPropertyBlock sharedPropertyBlock;
-
-    Color[] colors;
-
-    public int ColorCount {
-        get {
-            return colors.Length;
+    public T AddBehavior<T>() where T : ShapeBehavior, new() {
+        T behavior = ShapeBehaviorPool<T>.Get();
+        behaviorList.Add(behavior);
+        return behavior;
+    }
+    public void GameUpdate() {
+        // 这里原本是FixedUpdate方法  自己调用的 但后面优化到Game里面的FixedUpdate手动调用 因为Unity在调用FixedUpdate的时候还做了些自己要做的事情
+        Age += Time.deltaTime;
+        for (int i = 0; i < behaviorList.Count; i++) {
+            if (!behaviorList[i].GameUpdate(this)) {
+                behaviorList.RemoveAt(i--);
+            }
         }
     }
+    public void Recycle() {
+        Age = 0f;
+        InstanceId += 1;
+        for (int i = 0; i < behaviorList.Count; i++) {
+            // Destroy(behaviorList[i]);
+            behaviorList[i].Recycle();
+        }
+        behaviorList.Clear();
 
+        OriginFactory.Reclaim(this);   
+    }
+	public void ResolveShapeInstances() {
+        for (int i = 0; i < behaviorList.Count; i++) {
+            behaviorList[i].ResolveShapeInstances();
+        }
+    }
     public void SetColor(Color color) {
         // meshRenderer.material.color = color;
         if (sharedPropertyBlock == null) {
@@ -72,6 +101,12 @@ public class Shape : PersistableObject
         meshRenderers[index].SetPropertyBlock(sharedPropertyBlock);
     }
 
+	public void SetMaterial(Material material, int materialId) {
+        for (int i = 0; i < meshRenderers.Length; i++) {
+            meshRenderers[i].material = material;
+        }
+        MaterialId = materialId;
+    }
     public override void Save(GameDataWriter writer) {
         base.Save(writer);
         writer.Write(colors.Length);
@@ -129,46 +164,17 @@ public class Shape : PersistableObject
     public float Age { get; private set; }
 
     public int InstanceId { get; private set; }
-    public void GameUpdate() {
-        // 这里原本是FixedUpdate方法  自己调用的 但后面优化到Game里面的FixedUpdate手动调用 因为Unity在调用FixedUpdate的时候还做了些自己要做的事情
-        Age += Time.deltaTime;
-        for (int i = 0; i < behaviorList.Count; i++) {
-            if (!behaviorList[i].GameUpdate(this)) {
-                behaviorList.RemoveAt(i--);
-            }
-        }
-    }
+
 
     List<ShapeBehavior> behaviorList = new List<ShapeBehavior>();
 
-    public T AddBehavior<T>() where T : ShapeBehavior, new() {
-        T behavior = ShapeBehaviorPool<T>.Get();
-        behaviorList.Add(behavior);
-        return behavior;
-    }
+
     
     [SerializeField]
     MeshRenderer[] meshRenderers;
 
-    private void Awake() {
-        colors = new Color[meshRenderers.Length];
-    }
 
-    public void Recycle() {
-        Age = 0f;
-        InstanceId += 1;
-        for (int i = 0; i < behaviorList.Count; i++) {
-            // Destroy(behaviorList[i]);
-            behaviorList[i].Recycle();
-        }
-        behaviorList.Clear();
 
-        OriginFactory.Reclaim(this);   
-    }
 
-    public void ResolveShapeInstances() {
-        for (int i = 0; i < behaviorList.Count; i++) {
-            behaviorList[i].ResolveShapeInstances();
-        }
-    }
+    
 }
