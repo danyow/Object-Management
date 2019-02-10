@@ -76,8 +76,8 @@ public class Shape : PersistableObject
         for (int i = 0; i < colors.Length; i++) {
             writer.Write(colors[i]);
         }
-        // writer.Write(AngularVelocity);
-        // writer.Write(Velocity);
+        writer.Write(Age);
+        writer.Write(behaviorList.Count);
         for (int i = 0; i < behaviorList.Count; i++) {
             writer.Write((int)behaviorList[i].BehaviorType);
             behaviorList[i].Save(writer);
@@ -93,9 +93,12 @@ public class Shape : PersistableObject
         }
         if (reader.Version >= 6)
         {
+            Age = reader.ReadFloat();
             int behaviorCount = reader.ReadInt();
             for (int i = 0; i < behaviorCount; i++) {
-                AddBehavior((ShapeBehaviorType)reader.ReadInt()).Load(reader);
+                ShapeBehavior behavior = ((ShapeBehaviorType)reader.ReadInt()).GetInstance();
+                behaviorList.Add(behavior);
+                behavior.Load(reader);
             }
         } else if (reader.Version >= 4) {
             AddBehavior<RotationShapeBehavior>().AngularVelocity = reader.ReadVector3();
@@ -120,8 +123,12 @@ public class Shape : PersistableObject
             }
         }
     }
+
+    public float Age { get; private set; }
+
     public void GameUpdate() {
         // 这里原本是FixedUpdate方法  自己调用的 但后面优化到Game里面的FixedUpdate手动调用 因为Unity在调用FixedUpdate的时候还做了些自己要做的事情
+        Age += Time.deltaTime;
         for (int i = 0; i < behaviorList.Count; i++) {
             behaviorList[i].GameUpdate(this);
         }
@@ -134,18 +141,7 @@ public class Shape : PersistableObject
         behaviorList.Add(behavior);
         return behavior;
     }
-
-    ShapeBehavior AddBehavior(ShapeBehaviorType type) {
-        switch (type) {
-            case ShapeBehaviorType.Movement:
-                return AddBehavior<MovementShapeBehavior>();
-            case ShapeBehaviorType.Rotation:
-                return AddBehavior<RotationShapeBehavior>();
-        }
-        Debug.LogError("Forgot to support" + type);
-        return null;
-    }
-
+    
     [SerializeField]
     MeshRenderer[] meshRenderers;
 
@@ -154,6 +150,7 @@ public class Shape : PersistableObject
     }
 
     public void Recycle() {
+        Age = 0f;
         for (int i = 0; i < behaviorList.Count; i++) {
             // Destroy(behaviorList[i]);
             behaviorList[i].Recycle();
