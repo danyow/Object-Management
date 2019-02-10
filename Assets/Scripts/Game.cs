@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class Game : PersistableObject
 {
-    const int saveVersion = 5;
+    const int saveVersion = 6;
     public float CreationSpeed { get; set; }
     public float DestructionSpeed {get; set; }
     [SerializeField]
