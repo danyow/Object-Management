@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RotationShapeBehavior : ShapeBehavior
+public sealed class RotationShapeBehavior : ShapeBehavior
 {
     public Vector3 AngularVelocity { get; set; }
 
@@ -22,5 +22,9 @@ public class RotationShapeBehavior : ShapeBehavior
         get {
             return ShapeBehaviorType.Rotation;
         }
+    }
+
+    public override void Recycle() {
+        ShapeBehaviorPool<RotationShapeBehavior>.Reclaim(this);
     }
 }

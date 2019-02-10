@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class MovementShapeBehavior : ShapeBehavior
+public sealed class MovementShapeBehavior : ShapeBehavior
 {
    public Vector3 Velocity { get; set; }
 
@@ -21,5 +21,9 @@ public class MovementShapeBehavior : ShapeBehavior
         get {
             return ShapeBehaviorType.Movement;
         }
+    }
+
+    public override void Recycle() {
+        ShapeBehaviorPool<MovementShapeBehavior>.Reclaim(this);
     }
 }

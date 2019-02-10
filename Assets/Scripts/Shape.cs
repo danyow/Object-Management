@@ -129,8 +129,8 @@ public class Shape : PersistableObject
 
     List<ShapeBehavior> behaviorList = new List<ShapeBehavior>();
 
-    public T AddBehavior<T>() where T : ShapeBehavior {
-        T behavior = gameObject.AddComponent<T>();
+    public T AddBehavior<T>() where T : ShapeBehavior, new() {
+        T behavior = ShapeBehaviorPool<T>.Get();
         behaviorList.Add(behavior);
         return behavior;
     }
@@ -155,7 +155,8 @@ public class Shape : PersistableObject
 
     public void Recycle() {
         for (int i = 0; i < behaviorList.Count; i++) {
-            Destroy(behaviorList[i]);
+            // Destroy(behaviorList[i]);
+            behaviorList[i].Recycle();
         }
         behaviorList.Clear();
 
