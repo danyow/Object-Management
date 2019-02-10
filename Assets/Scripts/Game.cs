@@ -17,7 +17,7 @@ public class Game : PersistableObject
     [SerializeField]
     ShapeFactory[] shapeFactories;
     public PersistentStorage storage;
-    // public SpawnZone spawnZoneOfLevel {get; set; }
+    public static Game Instance { get; private set; }
     public int levelCount;
     int loadedLevelBuildIndex;
     float creationProgress, destructionProgress;
@@ -30,8 +30,8 @@ public class Game : PersistableObject
     public KeyCode destroyKey = KeyCode.X;
 
     private void OnEnable() {
-        if (shapeFactories[0].FactoryId != 0)
-        {
+        Instance = this;
+        if (shapeFactories[0].FactoryId != 0) {
             for (int i = 0; i < shapeFactories.Length; i++) {
                 shapeFactories[i].FactoryId = i;
             }
@@ -56,9 +56,9 @@ public class Game : PersistableObject
     }
 
     private void Update() {
-        if (Input.GetKey(createKey)) {
-            CreateShape();
-        } else if (Input.GetKey(newGameKey)) {
+        if (Input.GetKeyDown(createKey)) {
+            GameLevel.Current.SpawnShape();
+        } else if (Input.GetKeyDown(newGameKey)) {
             BeginNewGame();
             StartCoroutine(LoadLevel(loadedLevelBuildIndex));
         } else if (Input.GetKeyDown(saveKey)) {
@@ -87,7 +87,7 @@ public class Game : PersistableObject
         creationProgress += Time.deltaTime * CreationSpeed;
         while (creationProgress >= 1f) {
             creationProgress -= 1f;
-            CreateShape();
+            GameLevel.Current.SpawnShape();
         }
 
         destructionProgress += Time.deltaTime * DestructionSpeed;
@@ -95,11 +95,12 @@ public class Game : PersistableObject
             destructionProgress -= 1f;
             DestroyShape();
         }
-    }
-
-
-    void CreateShape() {
-        shapes.Add(GameLevel.Current.SpawnShape());
+        int limit = GameLevel.Current.PopulationLimit;
+        if (limit > 0) {
+            while(shapes.Count > limit) {
+                DestroyShape();
+            }
+        }
     }
 
     void BeginNewGame() {
@@ -166,7 +167,9 @@ public class Game : PersistableObject
             int materialId = version > 0 ? reader.ReadInt() : 0;
             Shape instance = shapeFactories[factoryId].Get(shapeId, materialId);
             instance.Load(reader);
-            shapes.Add(instance);
+        }
+        for (int i = 0; i < shapes.Count; i++) {
+            shapes[i].ResolveShapeInstances();
         }
     }
 
@@ -180,6 +183,7 @@ public class Game : PersistableObject
             如果直接和最后一个交换的话 就会打乱顺序 但符合我们的需求
              */
             int lastIndex = shapes.Count - 1;
+            shapes[lastIndex].SaveIndex = index;
             shapes[index] = shapes[lastIndex];
             shapes.RemoveAt(lastIndex);
         }
@@ -194,6 +198,15 @@ public class Game : PersistableObject
         SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelBuildIndex));
         loadedLevelBuildIndex = levelBuildIndex;
         enabled = true;
+    }
+
+    public void AddShape(Shape shape) {
+        shape.SaveIndex = shapes.Count;
+        shapes.Add(shape);
+    }
+
+    public Shape GetShape(int index) {
+        return shapes[index];
     }
 
 }

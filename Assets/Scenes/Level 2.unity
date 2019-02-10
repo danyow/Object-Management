@@ -213,6 +213,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnZone: {fileID: 976254735}
   persistentObjects: []
+  populationLimit: 100
 --- !u!4 &433162841
 Transform:
   m_ObjectHideFlags: 0
@@ -265,10 +266,10 @@ MonoBehaviour:
     movementDirection: 2
     speed:
       min: 0
-      max: 0
+      max: 1
     angularSpeed:
       min: 0
-      max: 0
+      max: 90
     scale:
       min: 0.1
       max: 1
@@ -285,11 +286,24 @@ MonoBehaviour:
     uniformColor: 0
     oscillationDirection: 2
     oscillationAmplitude:
-      min: 0.1
-      max: 1
+      min: 0
+      max: 0
     oscillationFrequency:
-      min: 1
-      max: 1
+      min: 0
+      max: 0
+    satellite:
+      amount:
+        min: 0
+        max: 0
+      relativeScale:
+        min: 0.25
+        max: 0.5
+      orbitRadius:
+        min: 1
+        max: 2
+      orbitFrequency:
+        min: 0.25
+        max: 0.5
   surfaceOnly: 0
 --- !u!4 &976254736
 Transform:

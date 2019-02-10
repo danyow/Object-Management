@@ -26,9 +26,9 @@ public class CompositeSpawnZone : SpawnZone
     [SerializeField]
     bool overrideConfig;
 
-    public override Shape SpawnShape() {
+    public override void SpawnShape() {
         if (overrideConfig) {
-            return base.SpawnShape();
+            base.SpawnShape();
         } else {
             int index;
             if (sequential) {
@@ -39,7 +39,7 @@ public class CompositeSpawnZone : SpawnZone
             } else {
                 index = Random.Range(0, spawnZones.Length);
             }
-            return spawnZones[index].SpawnShape();
+            spawnZones[index].SpawnShape();
         }
     }
 

@@ -50,6 +50,10 @@ public class GameDataReader : MonoBehaviour
         return value;
     }
 
+    public ShapeInstance ReadShapeInstance() {
+        return new ShapeInstance(reader.ReadInt32());
+    }
+
     public Random.State ReadRandomState() {
         return JsonUtility.FromJson<Random.State>(reader.ReadString());
     }

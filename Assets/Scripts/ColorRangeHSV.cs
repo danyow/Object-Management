@@ -2,6 +2,7 @@
 
 [System.Serializable]
 public struct ColorRangeHSV {
+    [FloatRangeSlider(0f, 1f)]
     public FloatRange hue, saturation, value;
     public Color RandomInRange {
         get {

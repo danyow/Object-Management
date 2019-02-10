@@ -8,6 +8,13 @@ public class GameLevel : PersistableObject
     SpawnZone spawnZone;
     [SerializeField]
     PersistableObject[] persistentObjects;
+    [SerializeField]
+    int populationLimit;
+    public int PopulationLimit {
+        get {
+            return populationLimit;
+        }
+    }
 
     public static GameLevel Current { get; private set; }
 
@@ -18,8 +25,8 @@ public class GameLevel : PersistableObject
         }
     }
 
-    public Shape SpawnShape() {
-        return spawnZone.SpawnShape();
+    public void SpawnShape() {
+        spawnZone.SpawnShape();
     }
 
     public override void Save(GameDataWriter writer) {

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Shape : PersistableObject
 {
+    // 形状索引
+    public int SaveIndex { get; set; }
     private int shapeId = int.MinValue;
     public int ShapeId
     {
@@ -126,11 +128,14 @@ public class Shape : PersistableObject
 
     public float Age { get; private set; }
 
+    public int InstanceId { get; private set; }
     public void GameUpdate() {
         // 这里原本是FixedUpdate方法  自己调用的 但后面优化到Game里面的FixedUpdate手动调用 因为Unity在调用FixedUpdate的时候还做了些自己要做的事情
         Age += Time.deltaTime;
         for (int i = 0; i < behaviorList.Count; i++) {
-            behaviorList[i].GameUpdate(this);
+            if (!behaviorList[i].GameUpdate(this)) {
+                behaviorList.RemoveAt(i--);
+            }
         }
     }
 
@@ -151,6 +156,7 @@ public class Shape : PersistableObject
 
     public void Recycle() {
         Age = 0f;
+        InstanceId += 1;
         for (int i = 0; i < behaviorList.Count; i++) {
             // Destroy(behaviorList[i]);
             behaviorList[i].Recycle();
@@ -158,5 +164,11 @@ public class Shape : PersistableObject
         behaviorList.Clear();
 
         OriginFactory.Reclaim(this);   
+    }
+
+    public void ResolveShapeInstances() {
+        for (int i = 0; i < behaviorList.Count; i++) {
+            behaviorList[i].ResolveShapeInstances();
+        }
     }
 }
